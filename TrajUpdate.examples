@@ -1,0 +1,6 @@
+
+Operator : convertMP2UU2
+Number   : 1
+Signature: ((stream (tuple([a1:d1, ..., ai:int, ..., aj:mpoint|upoint, ..., an:dn]))) x int x ai x aj) -> stream (tuple (Upload uploadunit))
+Example  : query dataMtrip feed convertMP2UU[ 1000, Moid, Trip ] count
+Result   : 10
