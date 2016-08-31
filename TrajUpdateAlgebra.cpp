@@ -106,9 +106,11 @@ ListExpr ConvertMP2UU2TM(ListExpr args)
     }
 
     // Create output list
-    ListExpr tupleList = nl->OneElemList(
+    ListExpr tupleList = nl->TwoElemList(
             nl->TwoElemList(nl->SymbolAtom("Upload"),
-                nl->SymbolAtom(UploadUnit::BasicType())));
+                nl->SymbolAtom(UploadUnit::BasicType())),
+            nl->TwoElemList(nl->SymbolAtom("Time"),
+                nl->SymbolAtom(CcReal::BasicType())));
     ListExpr outputstream = nl->TwoElemList(nl->SymbolAtom(Symbol::STREAM()),
             nl->TwoElemList(nl->SymbolAtom(Tuple::BasicType()),
                 tupleList));
@@ -133,6 +135,7 @@ int ConvertMP2UU2VM(Word* args, Word& result, int message,
         int it;
         int cnt;
         Word currentTupleWord;
+        TupleType *tupletype;
     };
 
     Iterator* iterator = static_cast<Iterator*>(local.addr);
@@ -143,6 +146,7 @@ int ConvertMP2UU2VM(Word* args, Word& result, int message,
             {
                 iterator = new Iterator();
                 local.addr = iterator;
+                iterator->tupletype = new TupleType(nl->Second(GetTupleResultType(s)));
                 qp->Open(args[0].addr);
                 return 0;
             }
@@ -173,9 +177,10 @@ int ConvertMP2UU2VM(Word* args, Word& result, int message,
                         mp->Get(iterator->it,up);
                         UnitPos pos( up.p1.GetX(), up.p1.GetY() );
                         UploadUnit* uu = new UploadUnit(moID, up.timeInterval.end, pos );
-                        TupleType* tupType =new TupleType(nl->Second(GetTupleResultType(s)));
-                        Tuple* tup = new Tuple( tupType );
+                        CcReal *cctime = new CcReal(up.timeInterval.end.ToDouble());
+                        Tuple* tup = new Tuple( iterator->tupletype );
                         tup->PutAttribute( 0, ( Attribute* ) uu );
+                        tup->PutAttribute( 1, ( Attribute* ) cctime );
                         result.addr = tup;
                         iterator->it++;
                         iterator->cnt++;
@@ -186,9 +191,10 @@ int ConvertMP2UU2VM(Word* args, Word& result, int message,
                         UPoint* up = static_cast<UPoint*>(currentTuple->GetAttribute(attr2));
                         UnitPos pos( up->p1.GetX(), up->p1.GetY() );
                         UploadUnit* uu = new UploadUnit(moID, up->timeInterval.end, pos );
-                        TupleType* tupType =new TupleType(nl->Second(GetTupleResultType(s)));
-                        Tuple* tup = new Tuple( tupType );
+                        CcReal *cctime = new CcReal(up->timeInterval.end.ToDouble());
+                        Tuple* tup = new Tuple( iterator->tupletype );
                         tup->PutAttribute( 0, ( Attribute* ) uu );
+                        tup->PutAttribute( 1, ( Attribute* ) cctime );
                         result.addr = tup;
                         iterator->cnt++;
                     }
